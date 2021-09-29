@@ -31,16 +31,19 @@ public interface MainThreadSupport {
         private final Looper looper;
 
         public AndroidHandlerMainThreadSupport(Looper looper) {
+            // 根据外部传入的looper对象进行本地初始化
             this.looper = looper;
         }
 
         @Override
         public boolean isMainThread() {
+            // 判断是否为主线程
             return looper == Looper.myLooper();
         }
 
         @Override
         public Poster createPoster(EventBus eventBus) {
+            // 当调用createPoster方法时创建一个HandlerPoster对象
             return new HandlerPoster(eventBus, looper, 10);
         }
     }

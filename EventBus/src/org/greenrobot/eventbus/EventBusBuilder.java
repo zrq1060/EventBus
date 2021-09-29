@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
  */
 @SuppressWarnings("unused")
 public class EventBusBuilder {
+    // 创建线程池
     private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
     boolean logSubscriberExceptions = true;
@@ -166,7 +167,9 @@ public class EventBusBuilder {
         if (mainThreadSupport != null) {
             return mainThreadSupport;
         } else if (AndroidLogger.isAndroidLogAvailable()) {
+            // 获取主线程Looper对象，这里又可能为空
             Object looperOrNull = getAndroidMainLooperOrNull();
+            // 根据主线程Looper对象返回AndroidHandlerMainThreadSupport对象
             return looperOrNull == null ? null :
                     new MainThreadSupport.AndroidHandlerMainThreadSupport((Looper) looperOrNull);
         } else {
@@ -176,6 +179,7 @@ public class EventBusBuilder {
 
     static Object getAndroidMainLooperOrNull() {
         try {
+            // 返回主线程Looper
             return Looper.getMainLooper();
         } catch (RuntimeException e) {
             // Not really a functional Android (e.g. "Stub!" maven dependencies)

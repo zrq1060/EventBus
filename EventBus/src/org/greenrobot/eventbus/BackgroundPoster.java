@@ -31,36 +31,46 @@ final class BackgroundPoster implements Runnable, Poster {
 
     BackgroundPoster(EventBus eventBus) {
         this.eventBus = eventBus;
+        // 初始化队列
         queue = new PendingPostQueue();
     }
 
     public void enqueue(Subscription subscription, Object event) {
+        // 封装PendingPost对象
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
+            // 将PendingPost对象加入到队列中
             queue.enqueue(pendingPost);
             if (!executorRunning) {
                 executorRunning = true;
+                // 这里使用到之前初始化的线程池
                 eventBus.getExecutorService().execute(this);
             }
         }
     }
 
+    // 线程池的执行回调
     @Override
     public void run() {
+        // 实现同HandlerPoster
         try {
             try {
+                // 无限循环
                 while (true) {
+                    //　获取队列中的PendingPost，进行双重检查，如果为null直接返回，结束循环
                     PendingPost pendingPost = queue.poll(1000);
                     if (pendingPost == null) {
                         synchronized (this) {
                             // Check again, this time in synchronized
                             pendingPost = queue.poll();
                             if (pendingPost == null) {
+                                // 一直循环到queue结束，才返回
                                 executorRunning = false;
                                 return;
                             }
                         }
                     }
+                    //使用反射的方式调用订阅者的订阅方法
                     eventBus.invokeSubscriber(pendingPost);
                 }
             } catch (InterruptedException e) {
