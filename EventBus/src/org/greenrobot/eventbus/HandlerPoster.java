@@ -42,6 +42,7 @@ public class HandlerPoster extends Handler implements Poster {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
             // 将PendingPost加入到队列中
+            // 发一个，执行一个，再发送，如果已经正在执行中，则不再立即执行，而是和上次一块执行
             queue.enqueue(pendingPost);
             if (!handlerActive) {
                 handlerActive = true;
