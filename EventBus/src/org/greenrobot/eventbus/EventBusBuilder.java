@@ -15,11 +15,8 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
-
-import org.greenrobot.eventbus.android.AndroidLogger;
+import org.greenrobot.eventbus.android.AndroidComponents;
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -147,8 +144,7 @@ public class EventBusBuilder {
     /**
      * Set a specific log handler for all EventBus logging.
      * <p/>
-     * By default all logging is via {@link android.util.Log} but if you want to use EventBus
-     * outside the Android environment then you will need to provide another log target.
+     * By default, all logging is via {@code android.util.Log} on Android or System.out on JVM.
      */
     public EventBusBuilder logger(Logger logger) {
         this.logger = logger;
@@ -166,23 +162,9 @@ public class EventBusBuilder {
     MainThreadSupport getMainThreadSupport() {
         if (mainThreadSupport != null) {
             return mainThreadSupport;
-        } else if (AndroidLogger.isAndroidLogAvailable()) {
-            // 获取主线程Looper对象，这里又可能为空
-            Object looperOrNull = getAndroidMainLooperOrNull();
-            // 根据主线程Looper对象返回AndroidHandlerMainThreadSupport对象
-            return looperOrNull == null ? null :
-                    new MainThreadSupport.AndroidHandlerMainThreadSupport((Looper) looperOrNull);
+        } else if (AndroidComponents.areAvailable()) {
+            return AndroidComponents.get().defaultMainThreadSupport;
         } else {
-            return null;
-        }
-    }
-
-    static Object getAndroidMainLooperOrNull() {
-        try {
-            // 返回主线程Looper
-            return Looper.getMainLooper();
-        } catch (RuntimeException e) {
-            // Not really a functional Android (e.g. "Stub!" maven dependencies)
             return null;
         }
     }

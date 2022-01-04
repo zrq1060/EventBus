@@ -15,8 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
-
 /**
  * Interface to the "main" thread, which can be whatever you like. Typically on Android, Android's main thread is used.
  */
@@ -25,27 +23,4 @@ public interface MainThreadSupport {
     boolean isMainThread();
 
     Poster createPoster(EventBus eventBus);
-
-    class AndroidHandlerMainThreadSupport implements MainThreadSupport {
-
-        private final Looper looper;
-
-        public AndroidHandlerMainThreadSupport(Looper looper) {
-            // 根据外部传入的looper对象进行本地初始化
-            this.looper = looper;
-        }
-
-        @Override
-        public boolean isMainThread() {
-            // 判断是否为主线程
-            return looper == Looper.myLooper();
-        }
-
-        @Override
-        public Poster createPoster(EventBus eventBus) {
-            // 当调用createPoster方法时创建一个HandlerPoster对象
-            return new HandlerPoster(eventBus, looper, 10);
-        }
-    }
-
 }

@@ -28,7 +28,7 @@ public class HandlerPoster extends Handler implements Poster {
     private final EventBus eventBus;
     private boolean handlerActive;
 
-    protected HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
+    public HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
         // 这里传入的是主线程的Looper对象，所以这个Handler对象是主线程的Handler
         super(looper);
         this.eventBus = eventBus;
